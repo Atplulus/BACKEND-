@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import datetime as dt
+import time
 
 class SerialPlotter:
     def __init__(self, root, port='/dev/ttyTHS1', baudrate=9600, timeout=1):
@@ -62,7 +63,7 @@ class SerialPlotter:
                 data = json.loads(line)
                 unit = data.get("unit")
                 speed = float(data.get("speed", 0))
-                timestamp = dt.datetime.now().strftime('%H:%M:%S')
+                timestamp = time.time()  # Use Unix timestamp
 
                 self.xdata.append(timestamp)
                 self.ydata.append(speed)
@@ -79,6 +80,7 @@ class SerialPlotter:
         self.line.set_data(self.xdata, self.ydata)
         self.ax.relim()
         self.ax.autoscale_view()
+        self.ax.set_xticklabels([dt.datetime.fromtimestamp(ts).strftime('%H:%M:%S') for ts in self.xdata])
         return self.line,
 
 if __name__ == "__main__":
