@@ -80,7 +80,8 @@ class SerialPlotter:
         self.line.set_data(self.xdata, self.ydata)
         self.ax.relim()
         self.ax.autoscale_view()
-        self.ax.set_xticklabels([dt.datetime.fromtimestamp(ts).strftime('%H:%M:%S') for ts in self.xdata])
+        self.ax.set_xticks(self.xdata)
+        self.ax.set_xticklabels([dt.datetime.fromtimestamp(ts).strftime('%H:%M:%S') for ts in self.xdata], rotation=45, ha='right')
         return self.line,
 
 if __name__ == "__main__":
