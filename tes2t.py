@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from datetime import datetime
 import threading
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class SerialPlotter:
     def __init__(self, root, port='/dev/ttyUSB0', baudrate=9600, timeout=1):
@@ -19,7 +20,7 @@ class SerialPlotter:
         self.fig, self.ax = plt.subplots()
         self.line, = self.ax.plot_date(self.times, self.speeds, '-')
 
-        self.canvas = plt.backends.backend_tkagg.FigureCanvasTkAgg(self.fig, master=root)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.ani = FuncAnimation(self.fig, self.update_plot, interval=1000)
