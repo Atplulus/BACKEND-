@@ -9,7 +9,7 @@ import threading
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class SerialPlotter:
-    def __init__(self, root, port='/dev/ttyUSB0', baudrate=9600, timeout=1):
+    def __init__(self, root, port='/dev/ttyTHS1', baudrate=9600, timeout=1):
         self.root = root
         self.port = port
         self.baudrate = baudrate
@@ -18,7 +18,13 @@ class SerialPlotter:
         self.speeds = []
         
         self.fig, self.ax = plt.subplots()
-        self.line, = self.ax.plot_date(self.times, self.speeds, '-')
+        self.line, = self.ax.plot(self.times, self.speeds, '-', label='Speed (km/h)')
+        
+        self.ax.set_title('Real-Time Speed Data')
+        self.ax.set_xlabel('Time')
+        self.ax.set_ylabel('Speed (km/h)')
+        self.ax.grid(True)
+        self.ax.legend()
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
@@ -42,11 +48,15 @@ class SerialPlotter:
                         data = json.loads(line)
                         speed = data.get("speed")
                         if speed is not None:
-                            self.times.append(datetime.now())
-                            self.speeds.append(speed)
-                            if len(self.times) > 100:
-                                self.times.pop(0)
-                                self.speeds.pop(0)
+                            try:
+                                speed = float(speed)
+                                self.times.append(datetime.now())
+                                self.speeds.append(speed)
+                                if len(self.times) > 100:
+                                    self.times.pop(0)
+                                    self.speeds.pop(0)
+                            except ValueError:
+                                print("Received speed value is not a valid float")
                     except json.JSONDecodeError:
                         print("Received invalid JSON data")
         except serial.SerialException as e:
@@ -61,5 +71,5 @@ class SerialPlotter:
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Real-Time Serial Plotter")
-    app = SerialPlotter(root, port='/dev/ttyUSB0', baudrate=9600, timeout=1)
+    app = SerialPlotter(root, port='/dev/ttyTHS1', baudrate=9600, timeout=1)
     root.mainloop()
